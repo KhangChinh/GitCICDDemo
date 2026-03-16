@@ -21,7 +21,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.UIA_SECRET }}
 
       - name: B3 - Build Docker image
         run: docker build -t ghcr.io/${{ github.repository }}:latest .
