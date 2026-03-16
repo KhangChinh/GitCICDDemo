@@ -1,0 +1,18 @@
+name: UIA
+
+on: 
+  push:
+    branches: ["main"]
+
+jobs:
+  thuc_hanh_doc_file:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: B1 - UIA
+        run: echo "UIA HUTECH"
+      - name: B2 - Down code
+        uses: actions/checkout@v6.0.2
+      - name: B3 - Read file
+        run: cat README.md
+   
