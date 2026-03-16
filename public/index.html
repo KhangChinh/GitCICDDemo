@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitCICD Demo - Docker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* Animated background blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: .45;
+      animation: float 8s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 500px; height: 500px; background: #7f5af0; top: -120px; left: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: #2cb67d; bottom: -100px; right: -80px; animation-delay: 2s; }
+    .blob-3 { width: 300px; height: 300px; background: #e53170; top: 50%; left: 60%; animation-delay: 4s; }
+
+    @keyframes float {
+      to { transform: translate(40px, -30px) scale(1.08); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 48px 40px;
+      max-width: 520px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,.35);
+      animation: slideUp .6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #7f5af0, #2cb67d);
+      padding: 6px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      background: linear-gradient(to right, #e2e2e2, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,.6);
+      font-size: .95rem;
+      margin-bottom: 32px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .info-item {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 16px 12px;
+      transition: transform .2s, border-color .2s;
+    }
+    .info-item:hover {
+      transform: translateY(-3px);
+      border-color: rgba(127,90,240,.4);
+    }
+
+    .info-label {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,.4);
+      margin-bottom: 6px;
+    }
+
+    .info-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffffdd;
+      word-break: break-all;
+    }
+
+    .docker-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .refresh-btn {
+      background: linear-gradient(135deg, #7f5af0, #2cb67d);
+      border: none;
+      color: #fff;
+      padding: 12px 32px;
+      border-radius: 999px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .refresh-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(127,90,240,.5);
+    }
+
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="card">
+    <div class="docker-icon">🐳</div>
+    <span class="badge">Running on Docker</span>
+    <h1>GitCICD Demo</h1>
+    <p class="subtitle">Ứng dụng web đơn giản chạy trong Docker container</p>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Hostname</div>
+        <div class="info-value" id="hostname"><span class="pulse">...</span></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Platform</div>
+        <div class="info-value" id="platform"><span class="pulse">...</span></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Node.js</div>
+        <div class="info-value" id="nodeVersion"><span class="pulse">...</span></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Memory</div>
+        <div class="info-value" id="memory"><span class="pulse">...</span></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Uptime</div>
+        <div class="info-value" id="uptime"><span class="pulse">...</span></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Timestamp</div>
+        <div class="info-value" id="timestamp"><span class="pulse">...</span></div>
+      </div>
+    </div>
+
+    <button class="refresh-btn" onclick="fetchInfo()">🔄 Refresh Info</button>
+  </div>
+
+  <script>
+    function formatUptime(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      return `${h}h ${m}m ${s}s`;
+    }
+
+    async function fetchInfo() {
+      try {
+        const res = await fetch('/api/info');
+        const data = await res.json();
+        document.getElementById('hostname').textContent = data.hostname;
+        document.getElementById('platform').textContent = data.platform;
+        document.getElementById('nodeVersion').textContent = data.nodeVersion;
+        document.getElementById('memory').textContent = data.memoryUsage;
+        document.getElementById('uptime').textContent = formatUptime(data.uptime);
+        document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleTimeString('vi-VN');
+      } catch (err) {
+        console.error('Failed to fetch info:', err);
+      }
+    }
+
+    fetchInfo();
+    setInterval(fetchInfo, 5000);
+  </script>
+</body>
+</html>
