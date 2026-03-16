@@ -18,13 +18,13 @@ jobs:
           password: ${{ secrets.UIA_SECRET }}
 
       - name: B3 - Build Docker image
-        run: docker build -t ghcr.io/${{ github.repository }}:latest .
+        run: docker build -t khangchinh/gitcicddemo:latest .
 
       - name: B4 - Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}:latest
+        run: docker push khangchinh/gitcicddemo:latest
 
       - name: B5 - Show result
         run: |
-          echo " Docker image pushed successfully!"
-          echo " Image: ghcr.io/${{ github.repository }}:latest"
-          echo " Pull command: docker pull ghcr.io/${{ github.repository }}:latest"
+          echo "Docker image pushed successfully!"
+          echo "Image: khangchinh/gitcicddemo:latest"
+          echo "Pull command: docker pull khangchinh/gitcicddemo:latest"
